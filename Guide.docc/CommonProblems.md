@@ -385,7 +385,12 @@ However, this solution will require some structural changes to `WindowStyler`
 that could spill out to dependent code as well.
 
 ```swift
-struct CustomWindowStyle: Styler {
+// class with necessary superclass
+class CustomWindowStyle: UIStyler {
+}
+
+// now, the conformance is possible
+extension CustomWindowStyle: Styler {
     func applyStyle() {
     }
 }
@@ -552,6 +557,25 @@ Here, it does not matter than `ColorComponents` is not `Sendable`.
 By using `@Sendable` function that can compute the value, the lack of
 sendability is side-stepped entirely.
 
+### Sending Argument
+
+The compiler will permit non-`Sendable` values to cross an isolation boundary
+if can can prove it can be done safely.
+Functions that explicitly state they require this can use the values
+within their implementations with less restrictions.
+
+```swift
+func updateStyle(backgroundColor: sending ColorComponents) async {
+    // this boundary crossing can now be proven safe in all cases
+    await applyBackground(backgroundColor)
+}
+```
+
+A `sending` argument does impose some restrictions at call sites.
+But, this can still be easier or more appropriate than adding a
+`Sendable` conformance.
+This technique also works for types you do not control.
+
 ### Sendable Conformance
 
 When encountering problems related to crossing isolation domains, a very
@@ -596,6 +620,21 @@ But further, data that is passed into or out of the actor may itself
 need to cross the isolation boundary.
 This can result in the need for yet more `Sendable` types.
 
+```swift
+actor Style {
+    private var background: ColorComponents
+
+    func applyBackground(_ color: ColorComponents) {
+        // make use of non-Sendable data here
+    }
+}
+```
+
+By moving both the non-Sendable data *and* operations on that data into the
+actor, no isolation boundaries need to be crossed.
+This provides a `Sendable` interface to those operations that can be freely
+accessed from any asynchronous context.
+
 #### Manual Synchronization
 
 If you have a type that is already doing manual synchronization, you can
@@ -616,6 +655,31 @@ As a general rule, if a type isn't already thread-safe, attempting to make
 it `Sendable` should not be your first approach.
 It is often easier to try other techniques first, falling back to
 manual synchronization only when truly necessary.
+
+#### Retroactive Sendable Conformance
+
+Your dependencies may also expose types that are using manual synchronization.
+This is usually visible only via documentation.
+It is possible to add an `@unchecked Sendable` conformance in this case as well.
+
+```swift
+extension ColorComponents: @retroactive @unchecked Sendable {
+}
+```
+
+Because `Sendable` is a marker protocol, a retroactive conformance
+does not have direct binary compatibility issues.
+However, it should still be used with extreme caution.
+Types that use manual synchronization can come with conditions or
+exceptions to their safety that may not completely match the semantics of
+`Sendable`.
+Further, you should be _particularly_ careful about using this technique
+for types that are part of your system's public API.
+
+> Note: To learn more about retroactive conformances,
+see the associated [Swift evolution proposal][SE-0364].
+
+[SE-0364]: https://github.com/swiftlang/swift-evolution/blob/main/proposals/0364-retroactive-conformance-warning.md
 
 #### Sendable Reference Types
 

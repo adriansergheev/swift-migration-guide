@@ -34,10 +34,11 @@ concepts and practical help to ease the migration.
 Here you will find articles and code examples that will:
 
 - Explain the concepts used by Swift's data-race safety model.
-- Demonstrate how to enable the Swift 6 language mode.
+- Outline a possible way to get started with migration.
 - Show how to enable complete concurrency checking for Swift 5 projects.
-- Provide techniques for incremental adoption.
+- Demonstrate how to enable the Swift 6 language mode.
 - Present strategies to resolve common problems.
+- Provide techniques for incremental adoption.
 
 > Important: The Swift 6 language mode is _opt-in_.
 Existing projects will not switch to this mode without configuration changes.
@@ -47,16 +48,32 @@ and _language mode_.
 The Swift 6 compiler supports four distinct language modes: "6", "5", "4.2",
 and "4".
 
-> Note: This guide is under active development. You can view the source, see
+### Contributing
+
+This guide is under active development. You can view the source, see
 full code examples, and learn about how to contribute in the [repository][].
+We would love your contributions in the form of:
+
+- Filing [issues][] to cover specific code patterns or additional sections of the guide
+- Opening pull requests to improve existing content or add new content
+- Reviewing others' [pull requests][] for clarity and correctness of writing and code examples
+
+For more information, see the [contributing][] document.
 
 [repository]: https://github.com/apple/swift-migration-guide
+[issues]: https://github.com/apple/swift-migration-guide/issues
+[pull requests]: https://github.com/apple/swift-migration-guide/pulls
+[contributing]: https://github.com/apple/swift-migration-guide/blob/main/CONTRIBUTING.md
 
 ## Topics
 
 - <doc:DataRaceSafety>
-- <doc:Swift6Mode>
+- <doc:MigrationStrategy>
 - <doc:CompleteChecking>
-- <doc:IncrementalAdoption>
+- <doc:Swift6Mode>
 - <doc:CommonProblems>
+- <doc:IncrementalAdoption>
+
+### Swift Concurrency in Depth
+
 - <doc:RuntimeBehavior>
